@@ -22,7 +22,7 @@ st.title("🔍 Sistema de Búsqueda de Contraseñas")
 
 st.write(
     "Esta aplicación genera contraseñas desordenadas, "
-    "las ordena usando Merge Sort y realiza una búsqueda binaria."
+    "las ordena usando ordenamiento mezcla y realiza una búsqueda binaria."
 )
 
 
