@@ -1,27 +1,25 @@
 import streamlit as st
-import random
 import time
 
-# ----------------------------------------
-# CONFIGURACIÓN DE LA PÁGINA
-# ----------------------------------------
+# ---------------------------------------------------
+# CONFIGURACIÓN
+# ---------------------------------------------------
 
 st.set_page_config(
     page_title="Sort & Search",
-    page_icon="📊",
+    page_icon="🔵",
     layout="centered"
 )
 
-# ----------------------------------------
+# ---------------------------------------------------
 # ESTILOS
-# ----------------------------------------
+# ---------------------------------------------------
 
 st.markdown("""
 <style>
 
 .stApp{
-    background-color:#050816;
-    color:white;
+    background-color:#071120;
 }
 
 html, body, [class*="css"]{
@@ -29,45 +27,48 @@ html, body, [class*="css"]{
     font-family:Arial;
 }
 
-h1,h2,h3{
+h1, h2, h3{
     color:white;
 }
 
 .stTextInput input{
-    background-color:#1e1e2f !important;
+    background-color:#10233f !important;
     color:white !important;
     border-radius:15px !important;
-    height:55px;
+    border:1px solid #1d4ed8 !important;
+    height:60px;
     font-size:24px;
 }
 
 .stButton > button{
-    background-color:transparent;
+    background-color:#10233f;
     color:white;
-    border:1px solid #3b3b50;
+    border:1px solid #2563eb;
     border-radius:15px;
     width:150px;
     height:70px;
     font-size:22px;
+    transition:0.3s;
 }
 
 .stButton > button:hover{
-    border:1px solid #00ffaa;
-    color:#00ffaa;
+    background-color:#2563eb;
+    color:white;
+    border:1px solid #60a5fa;
 }
 
 .resumen{
-    color:#38f2c2;
-    font-size:50px;
+    color:#60a5fa;
+    font-size:48px;
     font-weight:bold;
 }
 
 </style>
 """, unsafe_allow_html=True)
 
-# ----------------------------------------
+# ---------------------------------------------------
 # ALGORITMOS DE ORDENAMIENTO
-# ----------------------------------------
+# ---------------------------------------------------
 
 def burbuja(lista):
 
@@ -107,9 +108,9 @@ def mezcla(lista):
 
     return sorted(lista)
 
-# ----------------------------------------
+# ---------------------------------------------------
 # ALGORITMOS DE BÚSQUEDA
-# ----------------------------------------
+# ---------------------------------------------------
 
 def busqueda_lineal(lista, objetivo):
 
@@ -145,9 +146,9 @@ def busqueda_binaria(lista, objetivo):
 
     return -1
 
-# ----------------------------------------
+# ---------------------------------------------------
 # SESSION STATE
-# ----------------------------------------
+# ---------------------------------------------------
 
 if "lista_ordenada" not in st.session_state:
     st.session_state.lista_ordenada = None
@@ -167,29 +168,29 @@ if "tiempo_busqueda" not in st.session_state:
 if "posicion" not in st.session_state:
     st.session_state.posicion = None
 
-# ----------------------------------------
+# ---------------------------------------------------
 # TÍTULO
-# ----------------------------------------
+# ---------------------------------------------------
 
-st.title("📊 SORT & SEARCH")
+st.title("🔵 SORT & SEARCH")
 
 st.write("Ordenamiento • Búsqueda • Tiempo Real")
 
-# ----------------------------------------
+# ---------------------------------------------------
 # PASO 1
-# ----------------------------------------
+# ---------------------------------------------------
 
 st.header("1. ¿Cuál es el objetivo?")
 
 objetivo = st.text_input(
     "Ingresa un número de 4 dígitos:",
     max_chars=4,
-    placeholder="Ej: 1234"
+    placeholder="Ej: 0001"
 )
 
-# ----------------------------------------
+# ---------------------------------------------------
 # VALIDACIONES
-# ----------------------------------------
+# ---------------------------------------------------
 
 valido = False
 
@@ -209,21 +210,21 @@ if objetivo:
 
         st.success(f"✅ Objetivo válido: {objetivo}")
 
-# ----------------------------------------
+# ---------------------------------------------------
 # CONTINUAR SOLO SI ES VÁLIDO
-# ----------------------------------------
+# ---------------------------------------------------
 
 if valido:
 
-    objetivo = int(objetivo)
+    # LISTA DESDE 0001 HASTA 9999
 
-    lista = [random.randint(1000, 9999) for _ in range(10000)]
+    lista = [str(i).zfill(4) for i in range(0, 10000)]
 
     st.divider()
 
-    # ----------------------------------------
+    # ---------------------------------------------------
     # PASO 2
-    # ----------------------------------------
+    # ---------------------------------------------------
 
     st.header("2. Elije el algoritmo de ordenamiento")
 
@@ -271,9 +272,9 @@ if valido:
 
             st.session_state.algoritmo_ordenamiento = "Mezcla"
 
-    # ----------------------------------------
+    # ---------------------------------------------------
     # PASO 3
-    # ----------------------------------------
+    # ---------------------------------------------------
 
     if st.session_state.lista_ordenada is not None:
 
@@ -321,15 +322,17 @@ if valido:
 
                 st.session_state.algoritmo_busqueda = "Binaria"
 
-    # ----------------------------------------
+    # ---------------------------------------------------
     # RESUMEN FINAL
-    # ----------------------------------------
+    # ---------------------------------------------------
 
     if st.session_state.algoritmo_busqueda is not None:
 
         st.divider()
 
         st.header("🏆 Resumen Final")
+
+        st.write("")
 
         st.write("Ordenamiento")
 
@@ -369,9 +372,9 @@ if valido:
                 f"❌ Objetivo {objetivo} no encontrado"
             )
 
-        # ----------------------------------------
+        # ---------------------------------------------------
         # REINICIAR
-        # ----------------------------------------
+        # ---------------------------------------------------
 
         if st.button("Reiniciar"):
 
