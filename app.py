@@ -135,7 +135,32 @@ def insercion(lista):
 
 def mezcla(lista):
 
-    return sorted(lista)
+    if len(lista) <= 1:
+        return lista
+    medio = len(lista) // 2
+    izquierda = lista[:medio]
+    derecha = lista[medio:]
+    izquierda = mezcla(izquierda)
+    derecha = mezcla(derecha)
+    resultado = []
+    i = 0
+    j = 0
+
+
+    while i < len(izquierda) and j < len(derecha):
+        if izquierda[i] < derecha[j]:
+            resultado.append(izquierda[i])
+            i += 1
+        else:
+            resultado.append(derecha[j])
+            j += 1
+    while i < len(izquierda):
+        resultado.append(izquierda[i])
+        i += 1
+    while j < len(derecha):
+        resultado.append(derecha[j])
+        j += 1
+    return resultado
 
 # =====================================================
 # ALGORITMOS DE BÚSQUEDA

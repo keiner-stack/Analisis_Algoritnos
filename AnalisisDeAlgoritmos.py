@@ -1,43 +1,155 @@
-import random
-import bisect
 import streamlit as st
+import random
+import time
+import pandas as pd
+import plotly.express as px
 
 
-# =========================
+# =====================================================
 # CONFIGURACION PAGINA
-# =========================
+# =====================================================
 
 st.set_page_config(
-    page_title="Sort & Search",
-    page_icon="🔍",
-    layout="centered"
+    page_title="Analizador de Algoritmos",
+    page_icon="🧠",
+    layout="wide"
 )
 
 
-# =========================
-# TITULO
-# =========================
+# =====================================================
+# ESTILOS
+# =====================================================
 
-st.title("🔍 Sistema de Búsqueda de Contraseñas")
+st.markdown("""
+<style>
+
+.stApp {
+    background-color: #0f172a;
+    color: white;
+}
+
+h1, h2, h3 {
+    color: white;
+}
+
+[data-testid="stSidebar"] {
+    background-color: #111827;
+}
+
+div.stButton > button {
+    background-color: #2563eb;
+    color: white;
+    border-radius: 10px;
+    height: 3em;
+    width: 100%;
+    font-size: 18px;
+}
+
+.resultado {
+    background-color: #1e293b;
+    padding: 20px;
+    border-radius: 15px;
+    margin-top: 20px;
+}
+
+</style>
+""", unsafe_allow_html=True)
+
+
+# =====================================================
+# TITULO
+# =====================================================
+
+st.title("🧠 Analizador de Algoritmos")
 
 st.write(
-    "Esta aplicación genera contraseñas desordenadas, "
-    "las ordena usando ordenamiento mezcla y realiza una búsqueda binaria."
+    "Comparación entre algoritmos de ordenamiento "
+    "y búsqueda."
 )
 
 
-# =========================
-# GENERAR CONTRASEÑAS
-# =========================
+# =====================================================
+# SIDEBAR
+# =====================================================
 
-passwords = random.sample(range(10000), 10000)
-
-passwords = [f"{n:04d}" for n in passwords]
+st.sidebar.header("⚙️ Configuración")
 
 
-# =========================
-# MERGE SORT
-# =========================
+cantidad = st.sidebar.slider(
+    "Cantidad de datos",
+    100,
+    10000,
+    1000
+)
+
+
+ordenamiento = st.sidebar.selectbox(
+    "Algoritmo de Ordenamiento",
+    [
+        "Bubble Sort",
+        "Insertion Sort",
+        "Merge Sort"
+    ]
+)
+
+
+busqueda = st.sidebar.selectbox(
+    "Algoritmo de Búsqueda",
+    [
+        "Lineal",
+        "Binaria"
+    ]
+)
+
+
+# =====================================================
+# GENERAR DATOS
+# =====================================================
+
+datos = random.sample(range(cantidad * 10), cantidad)
+
+datos = [f"{n:04d}" for n in datos]
+
+
+# =====================================================
+# ALGORITMOS ORDENAMIENTO
+# =====================================================
+
+def bubble_sort(lista):
+
+    lista = lista.copy()
+
+    for i in range(len(lista)):
+
+        for j in range(0, len(lista) - i - 1):
+
+            if lista[j] > lista[j + 1]:
+
+                lista[j], lista[j + 1] = lista[j + 1], lista[j]
+
+    return lista
+
+
+def insertion_sort(lista):
+
+    lista = lista.copy()
+
+    for i in range(1, len(lista)):
+
+        clave = lista[i]
+
+        j = i - 1
+
+        while j >= 0 and clave < lista[j]:
+
+            lista[j + 1] = lista[j]
+
+            j -= 1
+
+        lista[j + 1] = clave
+
+    return lista
+
 
 def merge_sort(lista):
 
@@ -47,6 +159,7 @@ def merge_sort(lista):
     medio = len(lista) // 2
 
     izquierda = merge_sort(lista[:medio])
+
     derecha = merge_sort(lista[medio:])
 
     return merge(izquierda, derecha)
@@ -64,59 +177,225 @@ def merge(izquierda, derecha):
         if izquierda[i] < derecha[j]:
 
             resultado.append(izquierda[i])
+
             i += 1
 
         else:
 
             resultado.append(derecha[j])
+
             j += 1
 
     resultado.extend(izquierda[i:])
+
     resultado.extend(derecha[j:])
 
     return resultado
 
 
-# =========================
-# ORDENAMIENTO
-# =========================
+# =====================================================
+# ALGORITMOS BUSQUEDA
+# =====================================================
 
-passwords = merge_sort(passwords)
+def busqueda_lineal(lista, objetivo):
+
+    for i in range(len(lista)):
+
+        if lista[i] == objetivo:
+
+            return i
+
+    return -1
 
 
-# =========================
+def busqueda_binaria(lista, objetivo):
+
+    izquierda = 0
+
+    derecha = len(lista) - 1
+
+    while izquierda <= derecha:
+
+        medio = (izquierda + derecha) // 2
+
+        if lista[medio] == objetivo:
+
+            return medio
+
+        elif lista[medio] < objetivo:
+
+            izquierda = medio + 1
+
+        else:
+
+            derecha = medio - 1
+
+    return -1
+
+
+# =====================================================
 # ENTRADA USUARIO
-# =========================
+# =====================================================
 
 objetivo = st.text_input(
-    "Ingrese una contraseña de 4 dígitos",
+    "🔑 Ingrese una contraseña",
     placeholder="Ejemplo: 0456"
 )
 
 
-# =========================
-# BOTON BUSCAR
-# =========================
+# =====================================================
+# BOTON EJECUTAR
+# =====================================================
 
-if st.button("Buscar contraseña"):
+if st.button("🚀 Ejecutar Análisis"):
 
-    if objetivo.isdigit() and len(objetivo) <= 4:
+    if objetivo.isdigit():
 
         objetivo = f"{int(objetivo):04d}"
 
-        posicion = bisect.bisect_left(passwords, objetivo)
 
-        if posicion < len(passwords) and passwords[posicion] == objetivo:
+        # ==========================================
+        # ORDENAMIENTO
+        # ==========================================
 
-            st.success("Contraseña encontrada")
+        inicio_ordenamiento = time.time()
 
-            st.write(f"🔑 Contraseña: {objetivo}")
-            st.write(f"📍 Posición: {posicion + 1}")
-            st.write("⚡ Método de búsqueda: Búsqueda Binaria")
-            st.write("📚 Método de ordenamiento: Merge Sort")
+        if ordenamiento == "Bubble Sort":
+
+            datos_ordenados = bubble_sort(datos)
+
+        elif ordenamiento == "Insertion Sort":
+
+            datos_ordenados = insertion_sort(datos)
 
         else:
-            st.error("Contraseña no encontrada")
+
+            datos_ordenados = merge_sort(datos)
+
+        fin_ordenamiento = time.time()
+
+        tiempo_ordenamiento = (
+            fin_ordenamiento - inicio_ordenamiento
+        )
+
+
+        # ==========================================
+        # BUSQUEDA
+        # ==========================================
+
+        inicio_busqueda = time.time()
+
+        if busqueda == "Lineal":
+
+            posicion = busqueda_lineal(
+                datos_ordenados,
+                objetivo
+            )
+
+        else:
+
+            posicion = busqueda_binaria(
+                datos_ordenados,
+                objetivo
+            )
+
+        fin_busqueda = time.time()
+
+        tiempo_busqueda = (
+            fin_busqueda - inicio_busqueda
+        )
+
+
+        # ==========================================
+        # RESULTADOS
+        # ==========================================
+
+        col1, col2, col3 = st.columns(3)
+
+        with col1:
+
+            st.metric(
+                "⏱️ Tiempo Ordenamiento",
+                f"{tiempo_ordenamiento * 1000:.4f} ms"
+            )
+
+        with col2:
+
+            st.metric(
+                "🔍 Tiempo Búsqueda",
+                f"{tiempo_busqueda * 1000:.4f} ms"
+            )
+
+        with col3:
+
+            if posicion >= 0:
+
+                st.metric(
+                    "📍 Posición",
+                    posicion + 1
+                )
+
+            else:
+
+                st.metric(
+                    "📍 Posición",
+                    "No encontrada"
+                )
+
+
+        # ==========================================
+        # TABLA
+        # ==========================================
+
+        st.subheader("📊 Resultados")
+
+        df = pd.DataFrame({
+
+            "Algoritmo Ordenamiento": [ordenamiento],
+
+            "Algoritmo Búsqueda": [busqueda],
+
+            "Tiempo Ordenamiento": [tiempo_ordenamiento],
+
+            "Tiempo Búsqueda": [tiempo_busqueda]
+
+        })
+
+        st.dataframe(df)
+
+
+        # ==========================================
+        # GRAFICA
+        # ==========================================
+
+        grafica = pd.DataFrame({
+
+            "Proceso": [
+                "Ordenamiento",
+                "Búsqueda"
+            ],
+
+            "Tiempo": [
+                tiempo_ordenamiento,
+                tiempo_busqueda
+            ]
+
+        })
+
+        fig = px.bar(
+            grafica,
+            x="Proceso",
+            y="Tiempo",
+            title="Comparación de Tiempos"
+        )
+
+        st.plotly_chart(
+            fig,
+            use_container_width=True
+        )
 
     else:
-        st.warning("Ingrese solo números entre 0000 y 9999")
+
+        st.warning(
+            "Ingrese solo números"
+        )
